@@ -3,6 +3,7 @@ import io.sentry.event.BreadcrumbBuilder;
 import io.sentry.event.UserBuilder;
 import org.apache.logging.log4j.*;
 import org.slf4j.MDC;
+
 import java.util.HashMap;
 
 public class SentryTestLog4j {
@@ -12,37 +13,54 @@ public class SentryTestLog4j {
     private static final Marker MARKER2 = MarkerManager.getMarker("marker2").setParents(MARKER1);
     private static final Marker MARKER3 = MarkerManager.getMarker("marker3").setParents(MARKER2, MARKER0);
 
-    private static final String DEVICE_NAME = "DEVICE_" + ((int) Math.floor(Math.random()*100));
+    private static final String DEVICE_NAME = "DEVICE_" + ((int) Math.floor(Math.random() * 100));
 
-    public static void main(String[] args) throws IllegalArgumentException {
+    public static void main(String[] args) throws IllegalArgumentException, InterruptedException {
         for (String arg : args) {
             System.out.println(arg);
         }
-        System.out.println("Sentry is initialized: " + Sentry.isInitialized());
-        Sentry.getStoredClient().setServerName(DEVICE_NAME);
 
-        System.out.println("RELEASE: " + Sentry.getStoredClient().getRelease());
-        System.out.println("Server name: " + Sentry.getStoredClient().getServerName());
+        // Setting server name and user
+        Sentry.getStoredClient().setServerName(DEVICE_NAME);
         Sentry.getContext().setUser(new UserBuilder()
                 .setId(Sentry.getStoredClient().getServerName())
                 .build()
         );
 
+        // debugging
+        System.out.println("RELEASE: " + Sentry.getStoredClient().getRelease());
+        System.out.println("Server name: " + Sentry.getStoredClient().getServerName());
         System.out.println("User: " + Sentry.getContext().getUser().getId());
 
         SentryTestLog4j sentryTest = new SentryTestLog4j();
-        sentryTest.logSimpleMessage();
-        sentryTest.logSeveralSeverities();
-        sentryTest.logWithBreadcrumbs();
-        sentryTest.logWithExtras();
-        sentryTest.logWithMarker();
-        sentryTest.logWithMDC();
-        sentryTest.logException();
-        sentryTest.logExceptionWithReleaseR1230();
-        sentryTest.logRandomizedMessage();
-        throw new IllegalArgumentException("KABOOM!");
 
-        //Thread.sleep(3600*1000);
+        // *** Simple message ***
+        sentryTest.logSimpleMessage();
+
+         // *** Exception ***
+        sentryTest.logException();
+
+         // *** Multiple log levels ***
+        sentryTest.logSeveralSeverities();
+
+         // *** Log4j thread context ***
+        sentryTest.logWithExtras();
+
+        // *** Breadcrumbs ***
+        sentryTest.logWithBreadcrumbs();
+
+        // *** Error deduplication ***
+        sentryTest.logRandomizedMessage();
+
+        // *** Tracking exceptions with releases ***
+        sentryTest.logExceptionWithReleaseR1234();
+
+        // *** Reporting unhandled exceptions ***
+//        throw new IllegalArgumentException("KABOOM!");
+
+//        // *** Retry mechanism ***
+//        Thread.sleep(3600*1000);
+
     }
 
     void logSeveralSeverities() {
@@ -53,22 +71,28 @@ public class SentryTestLog4j {
         this.logWarn();
         this.logFatal();
     }
+
     void logTrace() {
         logger.trace("This is a log4j trace log");
     }
+
     void logDebug() {
         logger.debug("This is a log4j debug log");
     }
+
     void logInfo() {
         logger.info("This is a log4j info log");
     }
+
     void logWarn() {
         logger.warn("This is a log4j warn log");
         logger.warn("This is another log4j warn log");
     }
+
     void logError() {
         logger.error("This is a log4j error log");
     }
+
     void logFatal() {
         logger.fatal("This is a log4j fatal log");
     }
@@ -80,7 +104,7 @@ public class SentryTestLog4j {
 
     void logRandomizedMessage() {
         // This sends a simple event to Sentry
-        logger.error("This message keeps changing: " + ((int) Math.floor(Math.random()*1000000000)));
+        logger.error("This message keeps changing: " + ((int) Math.floor(Math.random() * 1000000000)));
     }
 
     void logWithBreadcrumbs() {
@@ -91,8 +115,8 @@ public class SentryTestLog4j {
                 new BreadcrumbBuilder()
                         .setMessage("User opened the settings modal")
                         .setCategory("user_opened_settings_modal")
-                        .setData(new HashMap<String, String>(){{
-                            put("modal_name","settings_modal");
+                        .setData(new HashMap<String, String>() {{
+                            put("modal_name", "settings_modal");
                         }})
                         .build()
         );
@@ -100,10 +124,10 @@ public class SentryTestLog4j {
                 new BreadcrumbBuilder()
                         .setMessage("User selected value from the dropdown")
                         .setCategory("user_selected_value_from_dropdown")
-                        .setData(new HashMap<String, String>(){{
-                            put("dropdown_value","whatever");
-                            put("another_key","another_value");
-                            put("yet_another_key","yet_another_value");
+                        .setData(new HashMap<String, String>() {{
+                            put("dropdown_value", "whatever");
+                            put("another_key", "another_value");
+                            put("yet_another_key", "yet_another_value");
                         }})
                         .build()
         );
@@ -112,8 +136,8 @@ public class SentryTestLog4j {
                 new BreadcrumbBuilder()
                         .setMessage("User pressed the big red button")
                         .setCategory("user_pressed_button")
-                        .setData(new HashMap<String, String>(){{
-                            put("button_name","the_big_red_one_they_were_not_supposed_to_press");
+                        .setData(new HashMap<String, String>() {{
+                            put("button_name", "the_big_red_one_they_were_not_supposed_to_press");
                         }})
                         .build()
         );
@@ -126,7 +150,7 @@ public class SentryTestLog4j {
     void logWithMDC() {
         MDC.put("foo", "value1");
         MDC.put("bar", "value2");
-        logger.error( "This is a log4j MDC test");
+        logger.error("This is a log4j MDC test");
     }
 
     void logWithMarker() {
@@ -155,10 +179,11 @@ public class SentryTestLog4j {
             logger.error("Exception caught", e);
         }
     }
-    void logExceptionWithReleaseR1230() {
+
+    void logExceptionWithReleaseR1234() {
         try {
-            if (Sentry.getStoredClient().getRelease().equals("R1.2.3.0")) {
-                throw new UnsupportedOperationException("This only happens with R1.2.3.0!");
+            if (Sentry.getStoredClient().getRelease().equals("R1.2.3.4")) {
+                throw new UnsupportedOperationException("This only happens with R1.2.3.4!");
             }
         } catch (Exception e) {
             // This sends an exception event to Sentry
