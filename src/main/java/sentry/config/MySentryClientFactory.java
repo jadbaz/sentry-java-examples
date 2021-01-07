@@ -6,7 +6,11 @@ import io.sentry.context.ContextManager;
 import io.sentry.context.SingletonContextManager;
 import io.sentry.dsn.Dsn;
 import io.sentry.event.helper.ContextBuilderHelper;
+import io.sentry.event.interfaces.SentryInterface;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,6 +38,21 @@ public class MySentryClientFactory extends DefaultSentryClientFactory {
                 eventBuilder.withExtra("random_number", randomNumber);
             }
         });
+
+        sentryClient.addBuilderHelper(eventBuilder -> {
+            String patternStr = ".*message keeps changing: ([0-9]+).*";
+            Pattern pattern = Pattern.compile(patternStr);
+            String message = eventBuilder.getEvent().getMessage();
+            Matcher matcher = pattern.matcher(message);
+
+            if (matcher.matches()) {
+                eventBuilder.withFingerprint(Arrays.asList(
+                        "{{ function }}",
+                        "hello"
+                        ));
+            }
+        });
+
         sentryClient.addBuilderHelper(new ContextBuilderHelper(sentryClient));
         return configureSentryClient(sentryClient, dsn);
     }

@@ -8,7 +8,7 @@ import io.sentry.event.UserBuilder;
 public class SentryTest {
     private static SentryClient sentry;
     private static final String DEVICE_NAME = "DEVICE_" + ((int) Math.floor(Math.random()*100));
-    private static final String BASE_DSN = "http://6cc8cbe5ce354814a93c761ce0991738@sentry.io/8";
+    private static final String BASE_DSN = "http://6cc8cbe5ce354814a93c761ce0991738@sentry.wavemark.net/8";
     private static final String DSN_OPTIONS = "?async=false";
     private static final String DSN = BASE_DSN + DSN_OPTIONS;
 

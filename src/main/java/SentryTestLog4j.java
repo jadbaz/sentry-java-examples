@@ -3,7 +3,9 @@ import io.sentry.event.BreadcrumbBuilder;
 import io.sentry.event.UserBuilder;
 import org.apache.logging.log4j.*;
 import org.slf4j.MDC;
+import third.party.SomeLibrary;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 
 public class SentryTestLog4j {
@@ -26,6 +28,7 @@ public class SentryTestLog4j {
                 .setId(Sentry.getStoredClient().getServerName())
                 .build()
         );
+        //Sentry.getStoredClient().setEnvironment("stage");
 
         // debugging
         System.out.println("RELEASE: " + Sentry.getStoredClient().getRelease());
@@ -36,6 +39,7 @@ public class SentryTestLog4j {
 
         // *** Simple message ***
         sentryTest.logSimpleMessage();
+        sentryTest.callIt();
 
          // *** Exception ***
         sentryTest.logException();
@@ -54,6 +58,14 @@ public class SentryTestLog4j {
 
         // *** Tracking exceptions with releases ***
         sentryTest.logExceptionWithReleaseR1234();
+
+        sentryTest.logMessage1();
+
+        sentryTest.logStackAll();
+        sentryTest.logStackDirect();
+
+        sentryTest.crashInThirdParty();
+
 
         // *** Reporting unhandled exceptions ***
 //        throw new IllegalArgumentException("KABOOM!");
@@ -95,6 +107,10 @@ public class SentryTestLog4j {
 
     void logFatal() {
         logger.fatal("This is a log4j fatal log");
+    }
+
+    void callIt() {
+        logSimpleMessage();
     }
 
     void logSimpleMessage() {
@@ -194,4 +210,46 @@ public class SentryTestLog4j {
     void unsafeMethod() {
         throw new UnsupportedOperationException("You shouldn't call this!");
     }
+
+    void logMessage1() {
+        logger.error("This is message 1");
+    }
+
+    void logStackAll() {
+        try {
+            f1();
+        } catch (UnsupportedEncodingException e) {
+            logger.error("Exception caught", e);
+        }
+    }
+
+    void logStackDirect() {
+        try {
+            fn();
+        } catch (UnsupportedEncodingException e) {
+            logger.error("Exception caught", e);
+        }
+    }
+
+    void f1() throws UnsupportedEncodingException {
+        f2();
+    }
+    void f2() throws UnsupportedEncodingException {
+        f3();
+    }
+    void f3() throws UnsupportedEncodingException {
+        fn();
+    }
+    void fn() throws UnsupportedEncodingException {
+        throw new UnsupportedEncodingException("I just can't even");
+    }
+
+    void crashInThirdParty() {
+        try {
+            new SomeLibrary().doSomething();
+        } catch (Exception e) {
+            logger.error("Exception caught", e);
+        }
+    }
+
 }
