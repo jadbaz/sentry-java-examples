@@ -40,7 +40,7 @@ public class SentryTestLog4jCabinet {
 
     void logShortCircuiting() {
         try {
-            throw new UnsupportedOperationException("Short circuiting web service with key 'saveCabinetRun' for the next 15.0 minutes since it encountered the following error code '1011' for at least 2 times   \n");
+            throw new UnsupportedOperationException("Short circuiting web service with key 'saveCabinetRun' for the next 15.0 minutes since it encountered the following error code '1011' for at least 2 times");
         } catch (Exception e) {
             logger.warn(e);
         }
