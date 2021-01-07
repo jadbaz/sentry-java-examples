@@ -1,15 +1,10 @@
 import io.sentry.Sentry;
-import io.sentry.event.BreadcrumbBuilder;
 import io.sentry.event.UserBuilder;
-import org.apache.logging.log4j.*;
-import org.slf4j.MDC;
-import third.party.SomeLibrary;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-
-public class SentryTestLog4jPOU {
-    private static final Logger logger = LogManager.getLogger(SentryTestLog4jPOU.class);
+public class SentryTestLog4jPOULiveDemo {
+    private static final Logger logger = LogManager.getLogger(SentryTestLog4jPOULiveDemo.class);
     private static final String DEVICE_NAME = "XPOS2" + ((int) Math.floor(Math.random() * 1000));
 
     public static void main(String[] args) throws IllegalArgumentException {
@@ -30,7 +25,7 @@ public class SentryTestLog4jPOU {
         System.out.println("Server name: " + Sentry.getStoredClient().getServerName());
         System.out.println("User: " + Sentry.getContext().getUser().getId());
 
-        SentryTestLog4jPOU sentryTest = new SentryTestLog4jPOU();
+        SentryTestLog4jPOULiveDemo sentryTest = new SentryTestLog4jPOULiveDemo();
 
          // *** Multiple log levels ***
         //sentryTest.logSeveralSeverities();

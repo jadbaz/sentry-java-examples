@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <title>Sentry JS Example</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <script
+        src="https://browser.sentry-cdn.com/5.16.1/bundle.min.js"
+        integrity="sha384-XeIbINcUQP10HtmVHwZigannjNDpoQRe+uhAoW9J5HU5dHFpilP164LjqO78xtIB"
+        crossorigin="anonymous">
+    </script>
+    <script type="text/javascript">
+        Sentry.init({
+            dsn: "http://89d4b7dbb5a642798f0ae16600a898e4@sentry.wavemark.net/16",
+            beforeSend(event, hint) {
+                if (event.exception) {
+                    Sentry.showReportDialog({ eventId: event.event_id });
+                }
+                return event;
+            }
+        });
+    </script>
+</head>
+<body>
+    <button onclick="refreshEncounters()">Refresh list of encounters</button>
+</body>
+</html>
